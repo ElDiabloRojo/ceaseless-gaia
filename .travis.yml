@@ -1,45 +1,37 @@
-# Define environment
-dist: xenial # Ubuntu 16.04
+notifications:
+  slack:
+    secure: EabTqBzjpK84ud31AyyJkwDkVrq53gfuUobiG9A7vM441HJaG4nIMpVjCDnVwRDloRn8HtGLuI+rPGSK7svqWVle5+UNGGBMKOVKWNCjU5+Bsx1OV4e4W1eWjc41h47UQEFhtIU6/A46VG0eq/1zwknAC1lOZQV8jnc86TZRPEdzKpVtk0FkMhwkIF/3Yr1U0tyzICw7s5oYRBtS1Fwdq0CGGgjftYU83tN2I2+ly/a4vQlxLjmrOm9LmhFg0Gum3Fab0QQIraQu7IzPhzYHMXMTsC33HCwStwgZGgqeKMsmvw05N6+XU6n732IbMHhTLA8s7wQTharTq6bYZ1tvK/ZHdOuzvUg+IgIRVuHUFwDa2wFfGFxWnepHB8lVXbVmuodBRPlmpdVX0itxCcITYx1qjjO0qrpaRL9zBzRbxnXpdAbh/fAFwYGPt6mpKznADASRppTo7qZ/ydGugacIHguCJy0LV4TCKmu9rUvX9f7qXw6xLuo3wKVaVWho2qreT9D9jHzr6QdoRQce0avSz2hkG6iMrLCg7nUxcvjBNlkPk5umWqwtWyXqNjoFvXGIxThB0yqtERmrxPnjy/wzQljjcipQpc/CC/2YPVAgSfdoWTvUbxLf82I2sdxM+vB/LVsvNR1zaB0PxCLWFA4emY1MqRR+cKYkXLWbqufeQL8=
+
+dist: xenial
 language: bash
 
-# Only build pushes to master branch
 branches:
   only:
-    - master
+  - master
 
-# Export variables
 env:
   - tf_init_cli_options="-input=false" tf_validation_cli_options="" tf_plan_cli_options="-lock=false -input=false" tf_apply_cli_options="-auto-approve -input=false"
 
-# Install dependencies
 before_install:
   - wget https://releases.hashicorp.com/terraform/"$TF_VERSION"/terraform_"$TF_VERSION"_linux_amd64.zip
   - unzip terraform_"$TF_VERSION"_linux_amd64.zip
   - sudo mv terraform /usr/local/bin/
   - rm terraform_"$TF_VERSION"_linux_amd64.zip
 
-# Terraform Plan and Apply
-# Plan only on pull requests, Apply on merged code
 jobs:
   include:
-#    - stage: containerised plan
-#      if: type IN (push)
-#      script:
-#        - docker run --rm --volume $TRAVIS_BUILD_DIR:/terraform --workdir /terraform hashicorp/terraform:$TF_VERSION fmt -recursive -check
-    - stage: terraform plan
-      # Only run terraform validate and plan state if within a pull request
-      if: type IN (push)
-      script:
-        - echo "Validating Terraform fmt"
-        - terraform fmt -recursive -check
-        - echo "Creating change plan"
-        - terraform init $tf_init_cli_options
-        - terraform validate $tf_validation_cli_options
-        - terraform plan $tf_plan_cli_options
-    - stage: terraform apply
-      # Only run terraform apply stage if outside of a pull request
-      if: type IN (push) and branch = master
-      script:
-        - echo "Executing changes"
-        - terraform init $tf_init_cli_options
-        - terraform apply $tf_apply_cli_options
+  - stage: terraform plan
+    if: type IN (push)
+    script:
+    - echo "Validating Terraform fmt"
+    - terraform fmt -recursive -check
+    - echo "Creating change plan"
+    - terraform init $tf_init_cli_options
+    - terraform validate $tf_validation_cli_options
+    - terraform plan $tf_plan_cli_options
+  - stage: terraform apply
+    if: type IN (push) and branch = master
+    script:
+    - echo "Executing changes"
+    - terraform init $tf_init_cli_options
+    - terraform apply $tf_apply_cli_options
