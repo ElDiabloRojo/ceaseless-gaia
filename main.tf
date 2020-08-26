@@ -1,51 +1,43 @@
 # Require TF version to be same as or greater than 0.12.19
 terraform {
-  required_version = ">=0.12.19"
-  /*
+  required_version = ">=0.13.0"
   backend "s3" {
-    bucket         = "travis-ci-bootstrap-s3-kyler"
+    bucket         = "ceaseless-gaia-terraform-state"
     key            = "terraform.tfstate"
-    region         = "us-east-1"
+    region         = "eu-central-1"
     dynamodb_table = "aws-locks"
     encrypt        = true
   }
-*/
 }
 
 # Download AWS provider
 provider "aws" {
-  region  = "us-east-1"
-  version = "~> 2.36.0"
+  region  = "eu-central-1"
+  version = "~> 2.60.0"
 }
 
-# Terraform bootstrapping
-module "bootstrap" {
-  source                      = "./modules/bootstrap"
-  name_of_s3_bucket           = "unique-s3-bucket-name-you-created"
+# Call the seed_module to build our ADO seed info
+module "backend" {
+  source                      = "./modules/backend"
+  name_of_s3_bucket           = "ceaseless-gaia-terraform-state"
   dynamo_db_table_name        = "aws-locks"
-  iam_user_name               = "IamUser"
-  ado_iam_role_name           = "IamRole"
-  aws_iam_policy_permits_name = "IamPolicyPermits"
-  aws_iam_policy_assume_name  = "IamPolicyAssume"
 }
 
-/*
-# Build a VPC
-resource "aws_vpc" "aws_vpc" {
-  cidr_block = "10.50.0.0/16"
-
-  tags = {
-    Name = "TravisCiVpc"
-  }
+# Simple website serving at naked domain / www. subdomain
+module "website" {
+  source  = "./modules/s3-website"
+  domain  = "phytology.co.uk"
 }
 
-# Adding subnet
-resource "aws_subnet" "main" {
-  vpc_id     = aws_vpc.aws_vpc.id
-  cidr_block = "10.50.1.0/24"
-
-  tags = {
-    Name = "TravisCiCreatedSubnet"
-  }
+# AWS Specific variables
+variable "aws_region" {
+  type        = string
+  description = "AWS Region to create the resource"
+  default     = "eu-central-1"
 }
-*/
+
+variable "aws_profile" {
+  type        = string
+  description = "AWS Profile to choose"
+  default     = "default"
+}

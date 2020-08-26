@@ -13,6 +13,7 @@ env:
 
 # Install dependencies
 before_install:
+  - pip install terraform-compliance
   - wget https://releases.hashicorp.com/terraform/"$TF_VERSION"/terraform_"$TF_VERSION"_linux_amd64.zip
   - unzip terraform_"$TF_VERSION"_linux_amd64.zip
   - sudo mv terraform /usr/local/bin/
@@ -22,10 +23,10 @@ before_install:
 # Plan only on pull requests, Apply on merged code
 jobs:
   include:
-    - stage: containerised plan
-      if: type IN (push)
-      script:
-        - docker run --rm --volume $TRAVIS_BUILD_DIR:/terraform --workdir /terraform hashicorp/terraform:$TF_VERSION fmt -recursive -check
+#    - stage: containerised plan
+#      if: type IN (push)
+#      script:
+#        - docker run --rm --volume $TRAVIS_BUILD_DIR:/terraform --workdir /terraform hashicorp/terraform:$TF_VERSION fmt -recursive -check
     - stage: terraform plan
       # Only run terraform validate and plan state if within a pull request
       if: type IN (push)
@@ -38,6 +39,7 @@ jobs:
         - terraform init $tf_init_cli_options
         - terraform validate $tf_validation_cli_options
         - terraform plan $tf_plan_cli_options
+        - terraform-compliance 
     - stage: terraform apply
       # Only run terraform apply stage if outside of a pull request
       if: type IN (push) and branch = master
