@@ -18,15 +18,15 @@ provider "aws" {
 
 # Call the seed_module to build our ADO seed info
 module "backend" {
-  source                      = "./modules/backend"
-  name_of_s3_bucket           = "ceaseless-gaia-terraform-state"
-  dynamo_db_table_name        = "aws-locks"
+  source               = "./modules/backend"
+  name_of_s3_bucket    = "ceaseless-gaia-terraform-state"
+  dynamo_db_table_name = "aws-locks"
 }
 
 # Simple website serving at naked domain / www. subdomain
 module "website" {
-  source  = "./modules/s3-website"
-  domain  = "phytology.co.uk"
+  source = "./modules/s3-website"
+  domain = "phytology.co.uk"
 }
 
 # AWS Specific variables
