@@ -22,6 +22,10 @@ before_install:
 # Plan only on pull requests, Apply on merged code
 jobs:
   include:
+    - stage: containerised plan
+      if: type IN (push)
+      script:
+        - docker run --rm hashicorp/terraform:$TF_VERSION --volume $TRAVIS_BUILD_DIR:/terraform --workdir /terraform terraform fmt -recursive -check
     - stage: terraform plan
       # Only run terraform validate and plan state if within a pull request
       if: type IN (push)
