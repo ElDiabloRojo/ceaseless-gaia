@@ -25,7 +25,7 @@ jobs:
     - stage: containerised plan
       if: type IN (push)
       script:
-        - docker run --rm hashicorp/terraform:$TF_VERSION --volume $TRAVIS_BUILD_DIR:/terraform --workdir /terraform terraform fmt -recursive -check
+        - docker run --rm --volume $TRAVIS_BUILD_DIR:/terraform --workdir /terraform hashicorp/terraform:$TERRAFORM_VERSION
     - stage: terraform plan
       # Only run terraform validate and plan state if within a pull request
       if: type IN (push)
