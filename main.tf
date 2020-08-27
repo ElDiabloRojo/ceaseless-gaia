@@ -39,5 +39,5 @@ variable "aws_profile" {
 }
 
 output "route53_app_fqdn" {
-    value = module.website.route53_app_fqdn
+  value = module.website.route53_app_fqdn
 }
