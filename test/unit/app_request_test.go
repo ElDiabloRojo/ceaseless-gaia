@@ -4,22 +4,23 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gruntwork-io/terratest/modules/aws"
 	http_helper "github.com/gruntwork-io/terratest/modules/http-helper"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 )
 
 func TestAppUnit(t *testing.T) {
-	awsRegion := "us-east-1"
-	PrimaryDomain := "module.foo.com"
-	SubAltDomNames := []string{"*.foo.com", "bar.dev"}
-	ValidMethod := "DNS"
+	awsRegion := aws.GetRandomStableRegion(t, nil, nil)
+	domain := "module.foo.com"
+	s3_force_destroy := true
 	terraformOptions := &terraform.Options{
 		TerraformDir: "../../modules/website",
 		Vars: map[string]interface{}{
-			"primary_domain":               PrimaryDomain,
-			"subjective_alternative_names": SubAltDomNames,
-			"validation_method":            ValidMethod,
-			"tags":                         Tag,
+			"domain":           domain,
+			"s3_force_destroy": s3_force_destroy,
+		},
+		EnvVars: map[string]string{
+			"AWS_DEFAULT_REGION": awsRegion,
 		},
 	}
 	defer terraform.Destroy(t, terraformOptions)
