@@ -20,6 +20,10 @@ before_install:
 
 jobs:
   include:
+  - stage: lint
+    if: type IN (push) and branch != master
+    script:
+    - go version
   - stage: terraform plan
     if: type IN (push)
     script:
@@ -29,6 +33,10 @@ jobs:
     - terraform init $tf_init_cli_options
     - terraform validate $tf_validation_cli_options
     - terraform plan $tf_plan_cli_options
+#   - stage: terratest
+#     if: type IN (push) # [TODO: determine a better test case ]
+#     script:
+#     - go test ./test/... -v
   - stage: terraform apply
     if: type IN (push) and branch = master
     script:
