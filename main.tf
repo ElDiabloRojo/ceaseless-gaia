@@ -28,7 +28,8 @@ module "backend" {
 
 module "website" {
   source           = "./modules/website"
-  domain           = "phytology.co.uk"
+  route53_domain   = "phytology.co.uk"
+  bucket_name      = "dev.phytology.co.uk"
   s3_force_destroy = true
 }
 
