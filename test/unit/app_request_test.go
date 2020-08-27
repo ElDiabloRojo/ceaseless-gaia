@@ -9,8 +9,18 @@ import (
 )
 
 func TestAppUnit(t *testing.T) {
+	awsRegion := "us-east-1"
+	PrimaryDomain := "module.foo.com"
+	SubAltDomNames := []string{"*.foo.com", "bar.dev"}
+	ValidMethod := "DNS"
 	terraformOptions := &terraform.Options{
-		TerraformDir: ".",
+		TerraformDir: "../../modules/website",
+		Vars: map[string]interface{}{
+			"primary_domain":               PrimaryDomain,
+			"subjective_alternative_names": SubAltDomNames,
+			"validation_method":            ValidMethod,
+			"tags":                         Tag,
+		},
 	}
 	defer terraform.Destroy(t, terraformOptions)
 	terraform.InitAndApply(t, terraformOptions)

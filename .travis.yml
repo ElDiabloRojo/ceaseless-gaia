@@ -36,7 +36,7 @@ jobs:
 #   - stage: terratest
 #     if: type IN (push) # [TODO: determine a better test case ]
 #     script:
-#     - go test ./test/... -v
+#     - go test ./test/... -v -timeout 30m
   - stage: terraform apply
     if: type IN (push) and branch = master
     script:
