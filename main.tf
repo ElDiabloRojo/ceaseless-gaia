@@ -26,11 +26,17 @@ module "backend" {
   dynamo_db_table_name = "aws-locks"
 }
 
+module "dns" {
+  source         = "./modules/dns"
+  route53_domain = "phytology.co.uk"
+}
+
 module "website" {
-  source           = "./modules/website"
-  route53_domain   = "phytology.co.uk"
-  bucket_name      = "dev.phytology.co.uk"
-  s3_force_destroy = true
+  source                 = "./modules/website"
+  bucket_name            = "dev.phytology.co.uk"
+  route53_zone_id        = module.dns.route53_zone_id
+  route53_hosted_zone_id = module.dns.route53_hosted_zone_id
+  s3_force_destroy       = true
 }
 
 variable "aws_profile" {

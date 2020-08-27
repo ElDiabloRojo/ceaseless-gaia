@@ -12,14 +12,14 @@ import (
 func TestAppUnit(t *testing.T) {
 	awsRegion := aws.GetRandomStableRegion(t, nil, nil)
 	bucket_name := "test.phytology.co.uk"
-	route53_domain := "phytology.co.uk"
 	s3_force_destroy := true
 	terraformOptions := &terraform.Options{
 		TerraformDir: "../../modules/website",
 		Vars: map[string]interface{}{
-			"bucket_name":      bucket_name,
-			"route53_domain":   route53_domain,
-			"s3_force_destroy": s3_force_destroy,
+			"bucket_name":            bucket_name,
+			"route53_zone_id":        "Z03696073LWK1WSI1Q63",
+			"route53_hosted_zone_id": "Z03696073LWK1WSI1Q63",
+			"s3_force_destroy":       s3_force_destroy,
 		},
 		EnvVars: map[string]string{
 			"AWS_DEFAULT_REGION": awsRegion,

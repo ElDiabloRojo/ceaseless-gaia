@@ -4,10 +4,12 @@ variable "bucket_name" {
   default     = ""
 }
 
-variable "route53_domain" {
-  type        = string
-  description = "Route53 hostedzone name"
-  default     = ""
+variable "route53_zone_id" {
+  type = string
+}
+
+variable "route53_hosted_zone_id" {
+  type = string
 }
 
 variable "domain" {

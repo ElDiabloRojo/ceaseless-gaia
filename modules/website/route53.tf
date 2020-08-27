@@ -1,13 +1,5 @@
-locals {
-  route53_domain = var.route53_domain != "" ? var.route53_domain : var.domain
-}
-
-resource "aws_route53_zone" "main" {
-  name = local.route53_domain
-}
-
 resource "aws_route53_record" "app" {
-  zone_id = aws_route53_zone.main.zone_id
+  zone_id = var.route53_hosted_zone_id
   name    = local.bucket_name
   type    = "A"
 
@@ -21,7 +13,7 @@ resource "aws_route53_record" "app" {
 resource "aws_route53_record" "cert_validation" {
   name    = aws_acm_certificate.cert.domain_validation_options.0.resource_record_name
   type    = aws_acm_certificate.cert.domain_validation_options.0.resource_record_type
-  zone_id = aws_route53_zone.main.id
+  zone_id = var.route53_zone_id
   records = [aws_acm_certificate.cert.domain_validation_options.0.resource_record_value]
   ttl     = 60
 }
