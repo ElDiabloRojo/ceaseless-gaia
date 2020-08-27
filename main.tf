@@ -37,3 +37,7 @@ variable "aws_profile" {
   description = "AWS Profile to choose"
   default     = "default"
 }
+
+output "route53_app_fqdn" {
+    value = module.website.route53_app_fqdn
+}

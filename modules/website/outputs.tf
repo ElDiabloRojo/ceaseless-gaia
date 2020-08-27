@@ -10,6 +10,10 @@ output "cloudfront_hosted_zone" {
   value = aws_cloudfront_distribution.main.*.hosted_zone_id
 }
 
+output "route53_app_fqdn" {
+  value = aws_route53_record.app.fqdn
+}
+
 # output "route53_nameservers" {
 #   value = aws_route53_zone.dev.name_servers.*
 # }
