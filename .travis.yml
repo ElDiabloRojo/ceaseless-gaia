@@ -14,6 +14,9 @@ before_install:
   - sudo mv terraform /usr/local/bin/
   - rm terraform_"$TF_VERSION"_linux_amd64.zip
 
+before_script:
+  - eval "$(gimme 1.13.1)"
+
 jobs:
   include:
   - stage: linting
