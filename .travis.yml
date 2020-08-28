@@ -16,10 +16,11 @@ before_install:
 
 jobs:
   include:
-  - stage: lint
+  - stage: linting
     if: type IN (push) and branch != master
     script:
-    - go version
+    - echo "Performing go code linting..."
+    - golangci-lint run -v ./...
   - stage: terraform plan
     if: type IN (push)
     script:
