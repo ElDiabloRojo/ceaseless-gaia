@@ -5,10 +5,6 @@ notifications:
 dist: xenial
 language: bash
 
-branches:
-  only:
-  - /.*/
-
 env:
   - tf_init_cli_options="-input=false" tf_validation_cli_options="" tf_plan_cli_options="-lock=false -input=false" tf_apply_cli_options="-auto-approve -input=false"
 
@@ -34,10 +30,10 @@ jobs:
     - terraform init $tf_init_cli_options
     - terraform validate $tf_validation_cli_options
     - terraform plan $tf_plan_cli_options
-   - stage: terratest
-     if: type IN (push) # [TODO: can this stage be executed on changes to terraform files? ]
-     script:
-     - go test ./test/... -v -timeout 30m
+#   - stage: terratest
+#     if: type IN (push) # [TODO: determine a better test case ]
+#     script:
+#     - go test ./test/... -v -timeout 30m
   - stage: terraform apply
     if: type IN (push) and branch = master
     script:
