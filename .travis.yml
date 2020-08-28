@@ -31,7 +31,7 @@ jobs:
     - terraform validate $tf_validation_cli_options
     - terraform plan $tf_plan_cli_options
    - stage: terratest
-     if: type IN (push) # [TODO: determine a better test case ]
+     if: type IN (push) # [TODO: can this stage be executed on changes to terraform files? ]
      script:
      - go test ./test/... -v -timeout 30m
   - stage: terraform apply
