@@ -30,10 +30,10 @@ jobs:
     - terraform init $tf_init_cli_options
     - terraform validate $tf_validation_cli_options
     - terraform plan $tf_plan_cli_options
-#   - stage: terratest
-#     if: type IN (push) # [TODO: determine a better test case ]
-#     script:
-#     - go test ./test/... -v -timeout 30m
+   - stage: terratest
+     if: type IN (push) # [TODO: determine a better test case ]
+     script:
+     - go test ./test/... -v -timeout 30m
   - stage: terraform apply
     if: type IN (push) and branch = master
     script:

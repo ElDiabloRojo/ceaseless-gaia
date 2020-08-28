@@ -17,8 +17,8 @@ func TestAppUnit(t *testing.T) {
 		TerraformDir: "../../modules/website",
 		Vars: map[string]interface{}{
 			"bucket_name":            bucketName,
-			"route53_zone_id":        "Z03696073LWK1WSI1Q63",
-			"route53_hosted_zone_id": "Z03696073LWK1WSI1Q63",
+			"route53_zone_id":        "Z050385224FJUG7TIV71C",
+			"route53_hosted_zone_id": "Z050385224FJUG7TIV71C",
 			"s3_force_destroy":       s3ForceDestroy,
 		},
 		EnvVars: map[string]string{
