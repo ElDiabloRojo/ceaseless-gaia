@@ -1,18 +1,20 @@
 package test
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
-	"github.com/gruntwork-io/terratest/modules/aws"
 	http_helper "github.com/gruntwork-io/terratest/modules/http-helper"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 )
 
 func TestAppUnit(t *testing.T) {
-	awsRegion := aws.GetRandomStableRegion(t, nil, nil)
-	bucketName := "test.phytology.co.uk"
+	awsRegion := "us-east-1"
+	bucketName := "req-test.phytology.co.uk"
 	s3ForceDestroy := true
+	indexFileSource := "../../src/index.html"
+	errorFileSource := "../../src/error.html"
 	terraformOptions := &terraform.Options{
 		TerraformDir: "../../modules/website",
 		Vars: map[string]interface{}{
@@ -20,6 +22,8 @@ func TestAppUnit(t *testing.T) {
 			"route53_zone_id":        "Z050385224FJUG7TIV71C",
 			"route53_hosted_zone_id": "Z050385224FJUG7TIV71C",
 			"s3_force_destroy":       s3ForceDestroy,
+			"index_file_source":      indexFileSource,
+			"error_file_source":      errorFileSource,
 		},
 		EnvVars: map[string]string{
 			"AWS_DEFAULT_REGION": awsRegion,
@@ -31,10 +35,11 @@ func TestAppUnit(t *testing.T) {
 }
 
 func validate(t *testing.T, terraformOptions *terraform.Options) {
-	url := terraform.Output(t, terraformOptions, "route53_app_fqdn")
+	output := terraform.Output(t, terraformOptions, "route53_app_fqdn")
+	url := fmt.Sprintf("https://%s", output)
 
 	expectedStatus := 200
-	expectedBody := "Welcome to the static site provisioned by Terraform !!!"
+	expectedBody := "Welcome to the static site provisioned by Terraform!!!"
 	maxRetries := 10
 	timeBetweenRetries := 3 * time.Second
 	http_helper.HttpGetWithRetry(t, url, nil, expectedStatus, expectedBody, maxRetries, timeBetweenRetries)

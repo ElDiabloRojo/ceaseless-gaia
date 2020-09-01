@@ -4,6 +4,17 @@ variable "bucket_name" {
   default     = ""
 }
 
+variable "index_file_source" {
+  type = string
+  default = "./src/index.html"
+}
+
+variable "error_file_source" {
+  type = string
+  default = "./src/error.html"
+}
+
+# [TODO: consolidate zone related vars into one, they are the same.]
 variable "route53_zone_id" {
   type = string
 }
