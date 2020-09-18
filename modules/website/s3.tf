@@ -41,13 +41,15 @@ data "aws_iam_policy_document" "bucket_policy" {
 resource "aws_s3_bucket_object" "index" {
   bucket       = local.bucket_name
   key          = "index.html"
-  source       = "./src/index.html"
+  source       = var.index_file_source
   content_type = "text/html"
+  depends_on   = [aws_s3_bucket.main]
 }
 
 resource "aws_s3_bucket_object" "error" {
   bucket       = local.bucket_name
   key          = "error.html"
-  source       = "./src/error.html"
+  source       = var.error_file_source
   content_type = "text/html"
+  depends_on   = [aws_s3_bucket.main]
 }

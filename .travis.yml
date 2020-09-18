@@ -3,11 +3,7 @@ notifications:
     secure: EabTqBzjpK84ud31AyyJkwDkVrq53gfuUobiG9A7vM441HJaG4nIMpVjCDnVwRDloRn8HtGLuI+rPGSK7svqWVle5+UNGGBMKOVKWNCjU5+Bsx1OV4e4W1eWjc41h47UQEFhtIU6/A46VG0eq/1zwknAC1lOZQV8jnc86TZRPEdzKpVtk0FkMhwkIF/3Yr1U0tyzICw7s5oYRBtS1Fwdq0CGGgjftYU83tN2I2+ly/a4vQlxLjmrOm9LmhFg0Gum3Fab0QQIraQu7IzPhzYHMXMTsC33HCwStwgZGgqeKMsmvw05N6+XU6n732IbMHhTLA8s7wQTharTq6bYZ1tvK/ZHdOuzvUg+IgIRVuHUFwDa2wFfGFxWnepHB8lVXbVmuodBRPlmpdVX0itxCcITYx1qjjO0qrpaRL9zBzRbxnXpdAbh/fAFwYGPt6mpKznADASRppTo7qZ/ydGugacIHguCJy0LV4TCKmu9rUvX9f7qXw6xLuo3wKVaVWho2qreT9D9jHzr6QdoRQce0avSz2hkG6iMrLCg7nUxcvjBNlkPk5umWqwtWyXqNjoFvXGIxThB0yqtERmrxPnjy/wzQljjcipQpc/CC/2YPVAgSfdoWTvUbxLf82I2sdxM+vB/LVsvNR1zaB0PxCLWFA4emY1MqRR+cKYkXLWbqufeQL8=
 
 dist: xenial
-language: bash
-
-branches:
-  only:
-  - master
+language: generic
 
 env:
   - tf_init_cli_options="-input=false" tf_validation_cli_options="" tf_plan_cli_options="-lock=false -input=false" tf_apply_cli_options="-auto-approve -input=false"
@@ -18,12 +14,16 @@ before_install:
   - sudo mv terraform /usr/local/bin/
   - rm terraform_"$TF_VERSION"_linux_amd64.zip
 
+before_script:
+  - eval "$(gimme 1.13.1)"
+
 jobs:
   include:
-  - stage: lint
-    if: type IN (push) and branch != master
+  - stage: linting
+    if: type IN (pull_request)
     script:
-    - go version
+    - echo "Performing go code linting..."
+    - docker run --rm --volume $TRAVIS_BUILD_DIR:/project_files --workdir /project_files golangci/golangci-lint golangci-lint run -v ./...
   - stage: terraform plan
     if: type IN (push)
     script:
@@ -33,10 +33,10 @@ jobs:
     - terraform init $tf_init_cli_options
     - terraform validate $tf_validation_cli_options
     - terraform plan $tf_plan_cli_options
-#   - stage: terratest
-#     if: type IN (push) # [TODO: determine a better test case ]
-#     script:
-#     - go test ./test/... -v
+  - stage: terratest
+    if: type IN (push) # [TODO: can this stage be executed on changes to terraform files? ]
+    script:
+    - go test ./test/... -v -timeout 30m
   - stage: terraform apply
     if: type IN (push) and branch = master
     script:
