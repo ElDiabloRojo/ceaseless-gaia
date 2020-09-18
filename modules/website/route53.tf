@@ -17,3 +17,12 @@ resource "aws_route53_record" "cert_validation" {
   records = [aws_acm_certificate.cert.domain_validation_options.0.resource_record_value]
   ttl     = 60
 }
+
+resource "aws_route53_health_check" "website-healthcheck" {
+  fqdn              = aws_route53_record.app.fqdn
+  port              = 443
+  type              = "HTTPS"
+  resource_path     = "/"
+  failure_threshold = "5"
+  request_interval  = "30"
+}
