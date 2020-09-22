@@ -5,12 +5,12 @@ variable "bucket_name" {
 }
 
 variable "index_file_source" {
-  type = string
+  type    = string
   default = "./src/index.html"
 }
 
 variable "error_file_source" {
-  type = string
+  type    = string
   default = "./src/error.html"
 }
 
