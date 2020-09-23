@@ -52,3 +52,7 @@ variable "secret_user_agent" {
   description = "secret to authenticate CF requests to s3"
   default     = "SECRET-STRING"
 }
+
+variable "certificate_arn" {
+  type        = string
+}
