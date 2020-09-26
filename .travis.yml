@@ -5,6 +5,9 @@ notifications:
 dist: xenial
 language: generic
 
+services:
+  - docker
+
 env:
   - tf_init_cli_options="-input=false" 
   - tf_validation_cli_options="" 
@@ -58,6 +61,15 @@ jobs:
     <<: *_tf_validation
     env: 
       - ENV=development
+#
+# Terraform Compliance Testing
+#
+  - stage: tf-compliance
+    if: type IN (push)
+    script:
+      - cd $TRAVIS_BUILD_DIR/environments/development
+      - terraform plan -out development-plan.out
+      - docker run --rm -v $PWD:/target -it eerkunt/terraform-compliance -f features -p tf.out
   # - stage: terratest
   #   if: type IN (push) # [TODO: can this stage be executed on changes to terraform files?]
   #   script:
