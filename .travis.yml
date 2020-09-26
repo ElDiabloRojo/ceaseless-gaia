@@ -77,4 +77,4 @@ jobs:
     name: development
     <<: *_tf_apply
     env: 
-      - ENV=backend  
+      - ENV=development  
