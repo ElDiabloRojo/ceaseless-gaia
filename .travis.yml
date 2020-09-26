@@ -35,10 +35,12 @@ jobs:
   #   - echo "Performing go code linting..."
   #   - docker run --rm --volume $TRAVIS_BUILD_DIR:/project_files --workdir /project_files golangci/golangci-lint golangci-lint run -v ./... 
   - stage: tf-validation
-  - <<: *_tf_validation
+  - name: backend
+    <<: *_tf_validation
     env: 
       - ENV=backend  
-  - <<: *_tf_validation
+  - name: test
+    <<: *_tf_validation
     env: 
       - ENV=test
   - stage: terratest
