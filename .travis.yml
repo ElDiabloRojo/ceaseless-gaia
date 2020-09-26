@@ -7,6 +7,9 @@ language: generic
 
 env:
   - tf_init_cli_options="-input=false" tf_validation_cli_options="" tf_plan_cli_options="-lock=false -input=false" tf_apply_cli_options="-auto-approve -input=false"
+  - TERRAFORM_ENVIRONMENTS=$TRAVIS_BUILD_DIR/environments
+  - BACKEND_IAC_DIR=$TERRAFORM_ENVIRONMENTS/backend
+  - TEST_IAC_DIR=$TERRAFORM_ENVIRONMENTS/test
 
 before_install:
   - wget https://releases.hashicorp.com/terraform/"$TF_VERSION"/terraform_"$TF_VERSION"_linux_amd64.zip
@@ -19,20 +22,24 @@ before_script:
 
 jobs:
   include:
-  - stage: linting
-    if: type IN (pull_request)
+  - &tf-plan
+    stage: tf-validation backend
     script:
-    - echo "Performing go code linting..."
-    - docker run --rm --volume $TRAVIS_BUILD_DIR:/project_files --workdir /project_files golangci/golangci-lint golangci-lint run -v ./...
-  - stage: terraform plan
-    if: type IN (push)
-    script:
+    - cd $BACKEND_IAC_DIR
     - echo "Validating Terraform fmt"
     - terraform fmt -recursive -check
     - echo "Creating change plan"
     - terraform init $tf_init_cli_options
     - terraform validate $tf_validation_cli_options
     - terraform plan $tf_plan_cli_options
+    env: WORK_DIR=$BACKEND_IAC_DIR
+  - <<: •tf-plan
+    env: WORK_DIR=$TEST_IAC_DIR
+  # - stage: linting
+  #   if: type IN (pull_request)
+  #   script:
+  #   - echo "Performing go code linting..."
+  #   - docker run --rm --volume $TRAVIS_BUILD_DIR:/project_files --workdir /project_files golangci/golangci-lint golangci-lint run -v ./...
   - stage: terratest
     if: type IN (push) # [TODO: can this stage be executed on changes to terraform files? ]
     script:
