@@ -23,12 +23,16 @@ jobs:
     script:
     - echo "Validating Terraform fmt"
     - terraform fmt -recursive -check
-  - stage: tf validate
+  - &tf-validate
+    stage: tf validate
+    env: env=backend
     script:
-    - echo "validating backend iac source"
-    - ./ci-scripts/tf-validation.sh backend
-    - echo "validating test iac source"
-    - ./ci-scripts/tf-validation.sh test
+    - echo -e "validating ${env} iac source"
+    - ./ci-scripts/tf-validation.sh $env
+  - <<: *tf-validate
+    script:
+    - echo -e "validating ${env} iac source"
+    - ./ci-scripts/tf-validation.sh $env
   # - stage: go linting
   #   if: type IN (pull_request)
   #   script:
