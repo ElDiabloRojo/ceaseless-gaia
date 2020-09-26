@@ -71,6 +71,7 @@ jobs:
       - TF_PLAN_FILE=tf-plan.out
     script:
       - cd $TF_SOURCE_DIR
+      - terraform init
       - terraform plan -out $TF_PLAN_FILE
       - docker run --rm -v $TF_SOURCE_DIR:/target -it eerkunt/terraform-compliance -f tf-compliance -p $TF_PLAN_FILE
   # - stage: terratest
