@@ -7,9 +7,6 @@ language: generic
 
 env:
   - tf_init_cli_options="-input=false" tf_validation_cli_options="" tf_plan_cli_options="-lock=false -input=false" tf_apply_cli_options="-auto-approve -input=false"
-  - TERRAFORM_ENVIRONMENTS=$TRAVIS_BUILD_DIR/environments
-  - BACKEND_IAC_DIR=$TERRAFORM_ENVIRONMENTS/backend
-  - TEST_IAC_DIR=$TERRAFORM_ENVIRONMENTS/test
 
 before_install:
   - wget https://releases.hashicorp.com/terraform/"$TF_VERSION"/terraform_"$TF_VERSION"_linux_amd64.zip
@@ -35,10 +32,10 @@ jobs:
   include:
   - name: validate backend
     <<: *tf_validation
-    env: WORK_DIR=$BACKEND_IAC_DIR
+    env: WORK_DIR=$TRAVIS_BUILD_DIR/environments/backend
   - name: validate test
     <<: *tf_validation
-    env: WORK_DIR=$TEST_IAC_DIR
+    env: WORK_DIR=$TRAVIS_BUILD_DIR/environments/test
   # - stage: linting
   #   if: type IN (pull_request)
   #   script:
