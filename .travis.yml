@@ -14,9 +14,6 @@ before_install:
   - sudo mv terraform /usr/local/bin/
   - rm terraform_"$TF_VERSION"_linux_amd64.zip
 
-before_script:
-  - eval "$(gimme 1.13.1)"
-
 _tf_validation: &_tf_validation
   script:
   - echo -e "validating ${env} iac source"
@@ -42,6 +39,7 @@ jobs:
   - stage: terratest
     if: type IN (push) # [TODO: can this stage be executed on changes to terraform files?]
     script:
+    - eval "$(gimme 1.13.1)"
     - go test ./test/... -v -timeout 30m
   - stage: terraform apply
     if: type IN (push) and branch = master
