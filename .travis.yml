@@ -30,12 +30,13 @@ jobs:
     script:
     - echo "Validating Terraform fmt"
     - terraform fmt -recursive -check
-  - stage: tf validate backend
-    <<: *tf_validation
-    env: WORK_DIR=$TRAVIS_BUILD_DIR/environments/backend
-  - stage: tf validate test
-    <<: *tf_validation
-    env: WORK_DIR=$TRAVIS_BUILD_DIR/environments/test
+  - stage: tf validate
+    - name: backend
+      <<: *tf_validation
+      env: WORK_DIR=$TRAVIS_BUILD_DIR/environments/backend
+    - name: test
+      <<: *tf_validation
+      env: WORK_DIR=$TRAVIS_BUILD_DIR/environments/test
   # - stage: linting
   #   if: type IN (pull_request)
   #   script:
