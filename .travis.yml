@@ -18,6 +18,7 @@ before_install:
   - rm terraform_"$TF_VERSION"_linux_amd64.zip
 
 _tf_validation: &_tf_validation
+  stage: tf-validation
   script:
   - echo -e "validating ${ENV} iac source"
   - ./ci-scripts/tf-validation.sh $ENV
@@ -39,18 +40,15 @@ jobs:
   #   script:
   #   - echo "Performing go code linting..."
   #   - docker run --rm --volume $TRAVIS_BUILD_DIR:/project_files --workdir /project_files golangci/golangci-lint golangci-lint run -v ./... 
-  - stage: tf-validation
-    name: backend
+  - name: backend
     <<: *_tf_validation
     env: 
       - ENV=backend
-  - stage: tf-validation
-    name: test
+  - name: test
     <<: *_tf_validation
     env: 
       - ENV=test
-  - stage: tf-validation
-    name: development
+  - name: development
     <<: *_tf_validation
     env: 
       - ENV=development
