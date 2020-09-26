@@ -16,9 +16,8 @@ before_install:
 
 _tf_validation: &_tf_validation
   script:
-  - echo -e "validating ${env} iac source"
-  - ./ci-scripts/tf-validation.sh $env
-  env: env=backend 
+  - echo -e "validating ${ENV} iac source"
+  - ./ci-scripts/tf-validation.sh $ENV
 
 jobs:
   include:
@@ -28,9 +27,11 @@ jobs:
     - terraform fmt -recursive -check 
   - stage: tf-validation
     <<: *_tf_validation
-    env: env=backend  
-  - <<: *_tf_validation
-    env: env=test
+    env: 
+      - ENV=backend  
+    <<: *_tf_validation
+    env: 
+      - ENV=test
   # - stage: go linting
   #   if: type IN (pull_request)
   #   script:
