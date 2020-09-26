@@ -18,7 +18,6 @@ before_script:
   - eval "$(gimme 1.13.1)"
 
 _tf_validation: &tf_validation
-  stage: tf validate
   script:
     - echo -e "validating ${env} iac source"
     - ./ci-scripts/tf-validation.sh $env
@@ -29,10 +28,11 @@ jobs:
     script:
     - echo "Validating Terraform fmt"
     - terraform fmt -recursive -check
-  - <<: *tf-validate
+  - stage: tf-validate
+    - <<: *tf-validate
     env: env=backend  
-  - <<: *tf-validate
-    env: env=test
+    - <<: *tf-validate
+      env: env=test
   # - stage: go linting
   #   if: type IN (pull_request)
   #   script:
