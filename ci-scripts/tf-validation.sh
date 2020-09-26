@@ -1,5 +1,11 @@
 #!/bin/bash
 
+set -x
+
+echo $TRAVIS_BUILD_DIR
+
+echo $1
+
 WORKDIR=$TRAVIS_BUILD_DIR/environments/$1
 
 cd $WORK_DIR
