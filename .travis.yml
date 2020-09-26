@@ -29,10 +29,10 @@ jobs:
     - echo "Validating Terraform fmt"
     - terraform fmt -recursive -check
   - stage: tf-validate
-    - <<: *tf-validate
-      env: env=backend  
-    - <<: *tf-validate
-      env: env=test
+    <<: *tf-validate
+    env: env=backend  
+    <<: *tf-validate
+    env: env=test
   # - stage: go linting
   #   if: type IN (pull_request)
   #   script:
