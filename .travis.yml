@@ -17,7 +17,7 @@ before_install:
 before_script:
   - eval "$(gimme 1.13.1)"
 
-  _tf_validation: &tf_validation
+_tf_validation: &tf_validation
   stage: tf validate
   script:
     - echo -e "validating ${env} iac source"
