@@ -17,25 +17,19 @@ before_install:
 before_script:
   - eval "$(gimme 1.13.1)"
 
-_tf_validation: &tf_validation
-  script:
-    - cd $WORK_DIR
-    - echo "Creating change plan"
-    - terraform init $tf_init_cli_options
-    - terraform validate $tf_validation_cli_options
-
 jobs:
   include:
-  - stage: tf linting
+  - name: tf linting
     script:
     - echo "Validating Terraform fmt"
     - terraform fmt -recursive -check
   - stage: tf validate
-    <<: *tf_validation
-    env: WORK_DIR=$TRAVIS_BUILD_DIR/environments/backend
-    <<: *tf_validation
-    env: WORK_DIR=$TRAVIS_BUILD_DIR/environments/test
-  # - stage: linting
+    script:
+    - echo "validating backend iac source"
+    - ./ci-scripts/tf-validation.sh backend
+    - echo "validating test iac source"
+    - ./ci-scripts/tf-validation.sh test
+  # - stage: go linting
   #   if: type IN (pull_request)
   #   script:
   #   - echo "Performing go code linting..."
