@@ -53,7 +53,7 @@ jobs:
   #   script:
   #   - eval "$(gimme 1.13.1)"
   #   - go test ./test/... -v -timeout 30m
-  - stage: tf-validation
+  - stage: tf-apply
   - name: backend
     <<: *_tf_apply
     env: 
