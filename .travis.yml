@@ -30,6 +30,9 @@ _tf_apply: &_tf_apply
 
 jobs:
   include:
+#
+# Terraform Linting
+#
   - stage: linting
     name: tf-linting
     script:
@@ -40,6 +43,9 @@ jobs:
   #   script:
   #   - echo "Performing go code linting..."
   #   - docker run --rm --volume $TRAVIS_BUILD_DIR:/project_files --workdir /project_files golangci/golangci-lint golangci-lint run -v ./... 
+# 
+# Terraform Code Validation
+#
   - name: backend
     <<: *_tf_validation
     env: 
@@ -57,8 +63,16 @@ jobs:
   #   script:
   #   - eval "$(gimme 1.13.1)"
   #   - go test ./test/... -v -timeout 30m
-  - stage: tf-apply
-  - name: backend
+#
+# Apply Terraform Code
+#
+  - stage: tf-apply-backend
+    name: backend
+    <<: *_tf_apply
+    env: 
+      - ENV=backend 
+  - stage: tf-apply-development
+    name: development
     <<: *_tf_apply
     env: 
       - ENV=backend  
