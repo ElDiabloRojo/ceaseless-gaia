@@ -43,11 +43,11 @@ jobs:
     <<: *_tf_validation
     env: 
       - ENV=test
-  - stage: terratest
-    if: type IN (push) # [TODO: can this stage be executed on changes to terraform files?]
-    script:
-    - eval "$(gimme 1.13.1)"
-    - go test ./test/... -v -timeout 30m
+  # - stage: terratest
+  #   if: type IN (push) # [TODO: can this stage be executed on changes to terraform files?]
+  #   script:
+  #   - eval "$(gimme 1.13.1)"
+  #   - go test ./test/... -v -timeout 30m
   - stage: terraform apply
     if: type IN (push) and branch = master
     script:
