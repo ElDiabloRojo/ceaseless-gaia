@@ -33,6 +33,17 @@ _tf_apply: &_tf_apply
 
 jobs:
   include:
+### DEBUG
+  - stage: DEBUG
+    env: 
+      - TF_SOURCE_DIR=$TRAVIS_BUILD_DIR/environments/development
+      - TF_COMPLIANCE_TESTS_DIR=$TRAVIS_BUILD_DIR/tf-compliance
+    script: 
+      - pwd
+      - ls -lsah
+      - ls -lsah $TRAVIS_BUILD_DIR/
+      - ls -lsah $TF_COMPLIANCE_TESTS_DIR/
+      - ls -lsah $TF_SOURCE_DIR/
 #
 # Terraform Linting
 #
