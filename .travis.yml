@@ -70,9 +70,7 @@ jobs:
       - TF_SOURCE_DIR=$TRAVIS_BUILD_DIR/environments/development
       - TF_PLAN_FILE=tf-plan.out
     script:
-      - terraform init $TF_SOURCE_DIR
-      - terraform plan $TF_SOURCE_DIR -out $TF_PLAN_FILE
-      - docker run --rm -v $PWD:/target -it eerkunt/terraform-compliance -f tf-compliance -p $TF_PLAN_FILE
+      - ./ci-scripts/tf-compliance.sh
   # - stage: terratest
   #   if: type IN (push) # [TODO: can this stage be executed on changes to terraform files?]
   #   script:
