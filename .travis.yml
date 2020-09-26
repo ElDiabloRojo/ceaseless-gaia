@@ -19,8 +19,8 @@ before_script:
 
 _tf_validation: &_tf_validation
   script:
-    - echo -e "validating ${env} iac source"
-    - ./ci-scripts/tf-validation.sh $env
+  - echo -e "validating ${env} iac source"
+  - ./ci-scripts/tf-validation.sh $env
   env: env=backend 
 
 jobs:
