@@ -40,18 +40,20 @@ jobs:
   #   - echo "Performing go code linting..."
   #   - docker run --rm --volume $TRAVIS_BUILD_DIR:/project_files --workdir /project_files golangci/golangci-lint golangci-lint run -v ./... 
   - stage: tf-validation
-    - name: backend
-      <<: *_tf_validation
-      env: 
-        - ENV=backend  
-    - name: test
-      <<: *_tf_validation
-      env: 
-        - ENV=test
-    - name: development
-      <<: *_tf_validation
-      env: 
-        - ENV=development
+    name: backend
+    <<: *_tf_validation
+    env: 
+      - ENV=backend
+  - stage: tf-validation
+    name: test
+    <<: *_tf_validation
+    env: 
+      - ENV=test
+  - stage: tf-validation
+    name: development
+    <<: *_tf_validation
+    env: 
+      - ENV=development
   # - stage: terratest
   #   if: type IN (push) # [TODO: can this stage be executed on changes to terraform files?]
   #   script:
