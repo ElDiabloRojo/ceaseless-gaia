@@ -33,17 +33,6 @@ _tf_apply: &_tf_apply
 
 jobs:
   include:
-### DEBUG
-  - stage: DEBUG
-    env: 
-      - TF_SOURCE_DIR=$TRAVIS_BUILD_DIR/environments/development
-      - TF_COMPLIANCE_TESTS_DIR=$TRAVIS_BUILD_DIR/tf-compliance
-    script: 
-      - pwd
-      - ls -lsah
-      - ls -lsah $TRAVIS_BUILD_DIR/
-      - ls -lsah $TF_COMPLIANCE_TESTS_DIR/
-      - ls -lsah $TF_SOURCE_DIR/
 #
 # Terraform Linting
 #
@@ -79,12 +68,11 @@ jobs:
     if: type IN (push)
     env: 
       - TF_SOURCE_DIR=$TRAVIS_BUILD_DIR/environments/development
-      - TF_COMPLIANCE_TESTS_DIR=$TRAVIS_BUILD_DIR/tf-compliance
       - TF_PLAN_FILE=tf-plan.out
     script:
       - cd $TF_SOURCE_DIR
       - terraform plan -out $TF_PLAN_FILE
-      - docker run --rm -v $TF_SOURCE_DIR:/target -it eerkunt/terraform-compliance -f $TF_COMPLIANCE_TESTS_DIR -p $TF_PLAN_FILE
+      - docker run --rm -v $TF_SOURCE_DIR:/target -it eerkunt/terraform-compliance -f tf-compliance -p $TF_PLAN_FILE
   # - stage: terratest
   #   if: type IN (push) # [TODO: can this stage be executed on changes to terraform files?]
   #   script:
