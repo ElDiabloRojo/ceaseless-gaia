@@ -54,5 +54,5 @@ variable "secret_user_agent" {
 }
 
 variable "certificate_arn" {
-  type        = string
+  type = string
 }
