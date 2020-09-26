@@ -25,6 +25,7 @@ _tf_validation: &_tf_validation
 jobs:
   include:
   - stage: linting
+    name: tf-linting
     script:
     - echo "Validating Terraform fmt"
     - terraform fmt -recursive -check
