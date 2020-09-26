@@ -69,7 +69,7 @@ jobs:
     script:
       - cd $TRAVIS_BUILD_DIR/environments/development
       - terraform plan -out development-plan.out
-      - docker run --rm -v $PWD:/target -it eerkunt/terraform-compliance -f features -p tf.out
+      - docker run --rm -v $PWD:/target -it eerkunt/terraform-compliance -f features -p development-plan.out
   # - stage: terratest
   #   if: type IN (push) # [TODO: can this stage be executed on changes to terraform files?]
   #   script:
