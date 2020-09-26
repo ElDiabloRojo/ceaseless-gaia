@@ -30,7 +30,7 @@ jobs:
     - echo "Validating Terraform fmt"
     - terraform fmt -recursive -check 
   - stage: tf-validation
-  - <<: *_tf-validate
+    <<: *_tf-validate
     env: env=backend  
   - <<: *_tf-validate
     env: env=test
