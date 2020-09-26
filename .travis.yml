@@ -43,7 +43,7 @@ jobs:
   #   - echo "Performing go code linting..."
   #   - docker run --rm --volume $TRAVIS_BUILD_DIR:/project_files --workdir /project_files golangci/golangci-lint golangci-lint run -v ./...
   - stage: terratest
-    if: type IN (push) # [TODO: can this stage be executed on changes to terraform files? ]
+    if: type IN (push) # [TODO: can this stage be executed on changes to terraform files?]
     script:
     - go test ./test/... -v -timeout 30m
   - stage: terraform apply
