@@ -67,11 +67,13 @@ jobs:
 # Apply Terraform Code
 #
   - stage: tf-apply-backend
+    if: branch = master
     name: backend
     <<: *_tf_apply
     env: 
       - ENV=backend 
   - stage: tf-apply-development
+    if: branch = master
     name: development
     <<: *_tf_apply
     env: 
