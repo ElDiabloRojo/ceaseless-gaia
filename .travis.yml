@@ -68,7 +68,7 @@ jobs:
     if: type IN (push)
     env: 
       - TF_SOURCE_DIR=$TRAVIS_BUILD_DIR/environments/development
-      - TF_COMPLIANCE_TESTS_DIR=$TRAVIS_BUILD_DIR/tf-compliance/features
+      - TF_COMPLIANCE_TESTS_DIR=$TRAVIS_BUILD_DIR/tf-compliance
       - TF_PLAN_FILE=tf-plan.out
     script:
       - cd $TF_SOURCE_DIR
