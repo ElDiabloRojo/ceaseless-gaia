@@ -24,10 +24,15 @@ _tf_validation: &_tf_validation
 
 jobs:
   include:
-  - name: tf linting
+  - stage: linting
     script:
     - echo "Validating Terraform fmt"
-    - terraform fmt -recursive -check 
+    - terraform fmt -recursive -check
+  # - stage: go linting
+  #   if: type IN (pull_request)
+  #   script:
+  #   - echo "Performing go code linting..."
+  #   - docker run --rm --volume $TRAVIS_BUILD_DIR:/project_files --workdir /project_files golangci/golangci-lint golangci-lint run -v ./... 
   - stage: tf-validation
   - <<: *_tf_validation
     env: 
@@ -35,11 +40,6 @@ jobs:
   - <<: *_tf_validation
     env: 
       - ENV=test
-  # - stage: go linting
-  #   if: type IN (pull_request)
-  #   script:
-  #   - echo "Performing go code linting..."
-  #   - docker run --rm --volume $TRAVIS_BUILD_DIR:/project_files --workdir /project_files golangci/golangci-lint golangci-lint run -v ./...
   - stage: terratest
     if: type IN (push) # [TODO: can this stage be executed on changes to terraform files?]
     script:
