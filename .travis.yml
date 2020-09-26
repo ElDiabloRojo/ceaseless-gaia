@@ -22,6 +22,11 @@ _tf_validation: &_tf_validation
   - echo -e "validating ${ENV} iac source"
   - ./ci-scripts/tf-validation.sh $ENV
 
+_tf_apply: &_tf_apply
+  script:
+  - echo -e "applying ${ENV} iac source"
+  - - ./ci-scripts/tf-apply.sh $ENV
+
 jobs:
   include:
   - stage: linting
@@ -48,9 +53,8 @@ jobs:
   #   script:
   #   - eval "$(gimme 1.13.1)"
   #   - go test ./test/... -v -timeout 30m
-  - stage: terraform apply
-    if: type IN (push) and branch = master
-    script:
-    - echo "Executing changes"
-    - terraform init $tf_init_cli_options
-    - terraform apply $tf_apply_cli_options
+  - stage: tf-validation
+  - name: backend
+    <<: *_tf_apply
+    env: 
+      - ENV=backend  
