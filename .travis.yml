@@ -30,7 +30,7 @@ jobs:
     - terraform fmt -recursive -check
   - stage: tf-validate
     - <<: *tf-validate
-    env: env=backend  
+      env: env=backend  
     - <<: *tf-validate
       env: env=test
   # - stage: go linting
