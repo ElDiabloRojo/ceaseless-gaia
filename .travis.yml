@@ -5,9 +5,6 @@ notifications:
 dist: xenial
 language: generic
 
-python:
-  - "3.7"
-
 env:
   - tf_init_cli_options="-input=false" 
   - tf_validation_cli_options="" 
@@ -19,7 +16,10 @@ before_install:
   - unzip terraform_"$TF_VERSION"_linux_amd64.zip
   - sudo mv terraform /usr/local/bin/
   - rm terraform_"$TF_VERSION"_linux_amd64.zip
-  - pip3 install terraform-compliance
+  - pip install -U pip
+
+install:
+  - pip install terraform-compliance
 
 _tf_validation: &_tf_validation
   stage: tf-validation
