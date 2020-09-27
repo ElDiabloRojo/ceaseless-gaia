@@ -5,6 +5,9 @@ notifications:
 dist: xenial
 language: generic
 
+python:
+  - "3.7"
+
 env:
   - tf_init_cli_options="-input=false" 
   - tf_validation_cli_options="" 
