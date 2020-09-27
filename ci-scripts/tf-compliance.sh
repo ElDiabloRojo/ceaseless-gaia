@@ -2,9 +2,9 @@
 
 set -x
 
-terraform init $TF_SOURCE_DIR
-terraform plan -out $TF_PLAN_FILE --var-file=$TF_SOURCE_DIR/terraform.tfvars $TF_SOURCE_DIR
+cd $TF_SOURCE_DIR
 
-cat $TF_PLAN_FILE
+terraform init
+terraform plan -out $TF_PLAN_FILE
 
-docker run --rm -v $PWD:/target -it eerkunt/terraform-compliance -f tf-compliance -p $TF_PLAN_FILE
+terraform-compliance --features features --planfile $TF_PLAN_FILE

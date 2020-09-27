@@ -19,6 +19,7 @@ before_install:
   - unzip terraform_"$TF_VERSION"_linux_amd64.zip
   - sudo mv terraform /usr/local/bin/
   - rm terraform_"$TF_VERSION"_linux_amd64.zip
+  - pip install terraform-compliance
 
 _tf_validation: &_tf_validation
   stage: tf-validation
@@ -67,7 +68,7 @@ jobs:
   - stage: tf-compliance
     if: type IN (push)
     env: 
-      - TF_SOURCE_DIR=$TRAVIS_BUILD_DIR/environments/development
+      - TF_SOURCE_DIR=$TRAVIS_BUILD_DIR/environments/backend
       - TF_PLAN_FILE=tf-plan.out
     script:
       - ./ci-scripts/tf-compliance.sh
