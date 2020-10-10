@@ -16,3 +16,4 @@ for m in $(ls $(pwd)/modules/); do
     exit 1
   fi
 done
+
