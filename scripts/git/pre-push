@@ -8,6 +8,28 @@ ORANGE="\e[0;33m"
 RED="\e[0;31m"
 STOP="\e[0m"
 
+PROJECT_WORK_DIR=$(pwd)
+ENVIRONMENT_STATUS=0
+MODULE_STATUS=0
+
+#
+# functions
+#
+
+task_success () {
+  if [ $? -eq 0 ]; then
+    printf "${GREEN}"
+    printf 'SUCCESS\n'
+    printf "${STOP}"
+  else
+    printf "${RED}"
+    printf 'FAILED\n'
+    printf "${STOP}"
+    ENVIRONMENT_STATUS=$(($ENVIRONMENT_STATUS+1))
+  fi
+}
+
+
 #
 # tf fmt
 #
@@ -16,17 +38,17 @@ printf "${WHITE}"
 figlet tf fmt
 printf "${STOP}"
 
-printf '%s\n' "--------"
+printf '%b\n' "\033[1m--------\033[0m"
 
 tf_fmt=$(terraform fmt -check -recursive)
 
-if (( ${#tf_fmt[@]} > 0 )); then
+if [ -n "$tf_fmt" ]; then
   for i in $tf_fmt; do
     terraform fmt -check -diff $i
     printf '\n'
   done
-  if [ ! -z "$tf_fmt" ]; then
-    printf '%s\n' "--------"
+  if [ -n "$tf_fmt" ]; then
+    printf '%b\n' "\033[1m--------\033[0m"
     printf '%s\n\n' "$tf_fmt"
     printf 'Commit these files..? '
     while true; do
@@ -44,11 +66,13 @@ if (( ${#tf_fmt[@]} > 0 )); then
             printf "${GREEN}"
             printf '"No" selected, continuing script...\n'
             printf "${STOP}"
+            printf '%b\n' "\033[1m--------\033[0m"
             break
             ;;
           *)
             printf 'Please enter: '
             exit 1
+            # [TODO: catch all case not currently workinfg]
           ;;
       esac
     done
@@ -57,8 +81,9 @@ else
   printf "${GREEN}"
   printf 'No formatting issues detected...\n'
   printf "${STOP}"
-  printf '%s\n' "--------"
+  printf '%b\n' "\033[1m--------\033[0m"
 fi
+
 
 #
 # tflint
@@ -68,7 +93,7 @@ printf "${WHITE}"
 figlet tf lint
 printf "${STOP}"
 
-printf '%s\n' "--------"
+printf '%b\n' "\033[1m--------\033[0m"
 
 if [ ! $(which tflint) ]; then
   printf "${RED}"
@@ -77,20 +102,142 @@ if [ ! $(which tflint) ]; then
   exit 1
 fi
 
-for m in $(ls $(pwd)/modules/); do
-  printf 'Linting module: %s\n' "$m"
-  tflint --deep --module $(pwd)/modules/${m}
-  
+for m in $(ls $PROJECT_WORK_DIR/modules/); do
+  printf 'Linting module: %b\n\n' "\033[1m"$m"\033[0m"
+  tflint --deep --module $PROJECT_WORK_DIR/modules/${m}
   if [ $? -eq 0 ]; then
     printf "${GREEN}"
-    printf '\tNo issues found...\n'
+    printf 'No issues found...\n'
     printf "${STOP}"
-    printf '%s\n' "--------"
+   printf '%b\n' "\033[1m--------\033[0m"
   else
+    printf "${RED}"
     printf 'FAILED\n\n'
-    printf '%s\n' "--------"
+    printf "${STOP}"
+    printf '%b\n' "\033[1m--------\033[0m"
+    MODULE_STATUS=$(($MODULE_STATUS+1))
   fi
 done
+if [ $MODULE_STATUS -gt 0 ]; then
+  printf "${RED}"
+  printf '\n\033[1mModules failing linting.\033[0m\n'
+  printf "${STOP}"
+  printf '%b\n' "\033[1m--------\033[0m"
+fi
 
+for e in $(ls $PROJECT_WORK_DIR/environments/); do
+  printf 'Linting environment: %b\n' "\033[1m"$e"\033[0m"
+  cd $PROJECT_WORK_DIR/environments/$e
 
+  printf '\ntf init:\t'
+  terraform init > /dev/null
+  task_success 
 
+  printf 'tf lint:\t'
+  tflint --deep --module $PROJECT_WORK_DIR/environments/${e} > /dev/null
+  task_success
+
+  printf 'tf validate:\t'
+  terraform validate > /dev/null
+  task_success
+
+  printf '%b' "\033[1m--------\033[0m"
+  printf '\n'
+done
+
+if [ $ENVIRONMENT_STATUS -gt 0 ]; then
+  printf "${RED}"
+  printf 'Environment failling linting.\n\n'
+  printf "${STOP}"
+  printf '%b\n' "\033[1m--------\033[0m"
+fi
+
+if [[ $MODULE_STATUS -gt 0 || $ENVIRONMENT_STATUS -gt 0 ]]; then
+  printf "${RED}"
+  printf 'Error: linting failed, exiting...'
+  printf "${STOP}"
+  exit 1
+fi
+
+#
+# terraform-docs
+#
+
+MODULES_DIR="$PROJECT_WORK_DIR/modules/"
+
+printf "${WHITE}"
+figlet tf docs
+printf "${STOP}"
+
+printf '%b\n' "\033[1m--------\033[0m"
+
+for m in $(ls $MODULES_DIR); do
+  DOCS_DIR="$MODULES_DIR/${m}/docs/"
+  printf 'Documenting module: %b\n\n' "\033[1m"$m"\033[0m"
+  if [[ ! -f "$DOCS_DIR/tfdoc.md" ]]; then
+    printf "${RED}"
+    printf '\033[1mNo documentation exists...\033[0m\n\n'
+    printf "${GREEN}"
+    printf '\033[1mCreate & commit new documentation..?\033[0m '
+    printf "${STOP}"
+    while true; do
+      read -r -p "[y/n] " response
+      case "$response" in
+          [yY])
+            mkdir -p $DOCS_DIR
+            terraform-docs markdown $MODULES_DIR/${m} > $DOCS_DIR/tfdoc.md
+            git add $DOCS_DIR/tfdoc.md
+            git commit -m 'Automated: updating documentation for '$m
+            printf '%b\n' "\033[1m--------\033[0m"
+            break
+            ;;
+          [nN])
+            printf "${GREEN}"
+            printf '"No" selected, continuing script...\n'
+            printf "${STOP}"
+            printf '%b\n' "\033[1m--------\033[0m"
+            break
+            ;;
+          *)
+            printf 'Please enter: '
+            exit 1
+            # [TODO: catch all case not currently working]
+          ;;
+      esac
+    done
+  else
+    if [[ $(terraform-docs markdown $MODULES_DIR/${m} | diff -U 1 $DOCS_DIR/tfdoc.md -) ]]; then
+      terraform-docs markdown $MODULES_DIR/${m} | diff -U 1 $DOCS_DIR/tfdoc.md -
+      printf 'Commit these changes..? '
+      while true; do
+        read -r -p "[y/n] " response
+        case "$response" in
+            [yY])
+              terraform-docs markdown $MODULES_DIR/${m} > $DOCS_DIR/tfdoc.md
+              git add $MODULES_DIR/${m}/tfdoc.md
+              printf '%b\n' "\033[1m--------\033[0m"
+              break
+              ;;
+            [nN])
+              printf "${GREEN}"
+              printf '"No" selected, continuing script...\n'
+              printf "${STOP}"
+              printf '%b\n' "\033[1m--------\033[0m"
+              break
+              ;;
+            *)
+              printf 'Please enter: '
+              exit 1
+              # [TODO: catch all case not currently working]
+            ;;
+        esac
+      done
+      git commit -m 'Automated: updating module documentation.'
+    else
+      printf "${GREEN}"
+      printf 'No changes to commit...\n'
+      printf "${STOP}"
+      printf '%b\n' "\033[1m--------\033[0m"
+    fi
+  fi
+done
