@@ -8,41 +8,44 @@ figlet tf fmt
 
 tf_fmt=$(terraform fmt -check -recursive)
 
-if [ ${#tf_fmt[@]} -gt 0 ]; then
+if [ ${#tf_fmt[@]} ]; then
   printf '%s\n' "--------"
   for i in $tf_fmt; do
     terraform fmt -check -diff $i
     printf '\n'
   done
-  printf '%s\n' "----"
-  printf '%s\n' "$tf_fmt"
-  printf 'Commit these files..? '
-  while true; do
-    read -r -p "[y/n] " response
-    case "$response" in
-        [yY])
-          terraform fmt -recursive -write=true
-          for i in $tf_fmt; do
-            git add $i
-          done
-          git commit -m 'Automated: pre-push tf formatting...'
+  printf '%s\n' "--------"
+  if [ ! -z "$tf_fmt" ]; then
+    printf '\t%s\n' "$tf_fmt"
+    printf 'Commit these files..? '
+    while true; do
+      read -r -p "[y/n] " response
+      case "$response" in
+          [yY])
+            terraform fmt -recursive -write=true
+            for i in $tf_fmt; do
+              git add $i
+            done
+            git commit -m 'Automated: pre-push tf formatting...'
+            break
+            ;;
+          [nN])
+            printf '"No" selected, continuing script...\n'
+            break
+            ;;
+          *)
+            printf 'Please enter: '
           ;;
-        [nN])
-          printf '"No" selected, continuing script...'
-          break
-          ;;
-        *)
-          printf 'Please enter: '
-        ;;
-    esac
-  done
+      esac
+    done
+  fi
 fi
 
 #
 # tflint
 #
 
-figlet tflint
+figlet tf lint
 
 if [ ! $(which tflint) ]; then
   printf 'Error: tflint not found!\n'
