@@ -5,11 +5,11 @@
 #
 
 figlet tf fmt
+printf '%s\n' "--------"
 
 tf_fmt=$(terraform fmt -check -recursive)
 
 if [ ${#tf_fmt[@]} ]; then
-  printf '%s\n' "--------"
   for i in $tf_fmt; do
     terraform fmt -check -diff $i
     printf '\n'
@@ -46,6 +46,7 @@ fi
 #
 
 figlet tf lint
+printf '%s\n' "--------"
 
 if [ ! $(which tflint) ]; then
   printf 'Error: tflint not found!\n'
