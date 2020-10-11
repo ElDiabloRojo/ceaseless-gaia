@@ -1,5 +1,7 @@
 #!/bin/sh
 
+exec < /dev/tty
+
 #
 # tf fmt
 #
@@ -18,8 +20,7 @@ if [ ${#tf_fmt[@]} ]; then
     printf '%s\n' "--------"
     printf '%s\n' "$tf_fmt"
     printf 'Commit these files..? '
-    while true; do
-      read -r -p "[y/n] " response
+    while read -r -p "[y/n] " response; do
       case "$response" in
           [yY])
             terraform fmt -recursive -write=true
