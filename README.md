@@ -1,4 +1,4 @@
-# ceaseless-gaia
+# ceaseless-gaia [![Build Status](https://travis-ci.org/ElDiabloRojo/ceaseless-gaia.svg?branch=master)](https://travis-ci.org/ElDiabloRojo/ceaseless-gaia)
 
 Template project for CI/CD, terraform, terratest & aws serverless app design.
 
