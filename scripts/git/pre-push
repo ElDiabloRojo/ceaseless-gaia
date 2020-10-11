@@ -11,7 +11,7 @@ printf '%s\n' "--------"
 
 tf_fmt=$(terraform fmt -check -recursive)
 
-if [ -z "$tf_fmt" ]; then
+if (( ${#tf_fmt[@]} > 0 )); then
   for i in $tf_fmt; do
     terraform fmt -check -diff $i
     printf '\n'
