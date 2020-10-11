@@ -5,7 +5,7 @@ resource "aws_cloudwatch_metric_alarm" "website-healthcheck-alarm" {
   metric_name         = "HealthCheckStatus"
   comparison_operator = "LessThanThreshold"
   evaluation_periods  = "1"
-  period              = "60"
+  period              =   "60"
   statistic           = "Minimum"
   threshold           = "1"
   unit                = "None"
