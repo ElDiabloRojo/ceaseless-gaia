@@ -14,9 +14,9 @@ if [ ${#tf_fmt[@]} ]; then
     terraform fmt -check -diff $i
     printf '\n'
   done
-  printf '%s\n' "--------"
   if [ ! -z "$tf_fmt" ]; then
-    printf '\t%s\n' "$tf_fmt"
+    printf '%s\n' "--------"
+    printf '%s\n' "$tf_fmt"
     printf 'Commit these files..? '
     while true; do
       read -r -p "[y/n] " response
@@ -59,8 +59,10 @@ for m in $(ls $(pwd)/modules/); do
   
   if [ $? -eq 0 ]; then
     printf '\tNo issues found...\n\n'
+    printf '%s\n' "--------"
   else
     printf 'FAILED\n\n'
+    printf '%s\n' "--------"
   fi
 done
 
