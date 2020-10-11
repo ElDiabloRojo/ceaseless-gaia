@@ -14,7 +14,7 @@ resource "aws_cloudwatch_metric_alarm" "website-healthcheck-alarm" {
     HealthCheckId = aws_route53_health_check.website-healthcheck.id
   }
 
-  alarm_description    = "This metric monitors ${local.bucket_name} whether the service endpoint is down or not."
+  alarm_description  = "This metric monitors ${local.bucket_name} whether the service endpoint is down or not."
   treat_missing_data = "breaching"
 }
 
