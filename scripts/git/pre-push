@@ -2,9 +2,7 @@
 
 exec 0< /dev/tty
 
-WHITE="\e[1;37m"
 GREEN="\e[1;32m"
-ORANGE="\e[0;33m"
 RED="\e[0;31m"
 STOP="\e[0m"
 
@@ -17,15 +15,11 @@ MODULE_STATUS=0
 #
 
 task_success () {
-  if [ $? -eq 0 ]; then
-    printf "${GREEN}"
-    printf 'SUCCESS\n'
-    printf "${STOP}"
+  if [ "$1" -eq 0 ]; then
+    printf '%b\033[1mSUCCESS\033[0m%b\n' "${GREEN}" "${STOP}"
   else
-    printf "${RED}"
-    printf 'FAILED\n'
-    printf "${STOP}"
-    ENVIRONMENT_STATUS=$(($ENVIRONMENT_STATUS+1))
+    printf '%b\033[1mFAILED\033[0m%b\n' "${RED}" "${STOP}"
+    ENVIRONMENT_STATUS=$((ENVIRONMENT_STATUS+1))
   fi
 }
 
@@ -34,38 +28,33 @@ task_success () {
 # tf fmt
 #
 
-printf "${WHITE}"
 figlet tf fmt
-printf "${STOP}"
-
 printf '%b\n' "\033[1m--------\033[0m"
 
 tf_fmt=$(terraform fmt -check -recursive)
 
 if [ -n "$tf_fmt" ]; then
   for i in $tf_fmt; do
-    terraform fmt -check -diff $i
+    terraform fmt -check -diff "$i"
     printf '\n'
   done
   if [ -n "$tf_fmt" ]; then
     printf '%b\n' "\033[1m--------\033[0m"
     printf '%s\n\n' "$tf_fmt"
-    printf 'Commit these files..? '
+    printf '%bCommit these files..?%b ' "${GREEN}" "${STOP}"
     while true; do
       read -r -p "[y/n] " response
       case "$response" in
           [yY])
             terraform fmt -recursive -write=true
             for i in $tf_fmt; do
-              git add $i
+              git add "$i"
             done
             git commit -m 'Automated: pre-push tf formatting...'
             break
             ;;
           [nN])
-            printf "${GREEN}"
-            printf '"No" selected, continuing script...\n'
-            printf "${STOP}"
+            printf '%b"No" selected, continuing script...%b\n' "${GREEN}" "${STOP}"
             printf '%b\n' "\033[1m--------\033[0m"
             break
             ;;
@@ -78,9 +67,7 @@ if [ -n "$tf_fmt" ]; then
     done
   fi
 else
-  printf "${GREEN}"
-  printf 'No formatting issues detected...\n'
-  printf "${STOP}"
+  printf '%bNo formatting issues detected...%b\n' "${GREEN}" "${STOP}"
   printf '%b\n' "\033[1m--------\033[0m"
 fi
 
@@ -89,112 +76,99 @@ fi
 # tflint
 #
 
-printf "${WHITE}"
 figlet tf lint
-printf "${STOP}"
-
 printf '%b\n' "\033[1m--------\033[0m"
 
-if [ ! $(which tflint) ]; then
-  printf "${RED}"
-  printf 'Error: tflint not found!\n'
-  printf "${STOP}"
+if [ ! "$(which tflint)" ]; then
+  printf '%bError: tflint not found!%b\n' "${RED}" "${STOP}"
   exit 1
 fi
 
-for m in $(ls $PROJECT_WORK_DIR/modules/); do
-  printf 'Linting module: %b\n\n' "\033[1m"$m"\033[0m"
-  tflint --deep --module $PROJECT_WORK_DIR/modules/${m}
-  if [ $? -eq 0 ]; then
-    printf "${GREEN}"
-    printf 'No issues found...\n'
-    printf "${STOP}"
-   printf '%b\n' "\033[1m--------\033[0m"
-  else
-    printf "${RED}"
-    printf 'FAILED\n\n'
-    printf "${STOP}"
+for m in "$PROJECT_WORK_DIR"/modules/*; do
+  printf 'Linting module:\t%b\n' "\033[1m$m\033[0m"
+  tflint --deep --module "$m"
+
+  if tflint --deep --module "$m"; then
+    printf '%bNo issues found...%b\n' "${GREEN}" "${STOP}"
     printf '%b\n' "\033[1m--------\033[0m"
-    MODULE_STATUS=$(($MODULE_STATUS+1))
+
+  else
+    printf '%b\033[1mFAILED\033[0m%b\n\n' "${RED}" "${STOP}"
+    printf '%b\n' "\033[1m--------\033[0m"
+    MODULE_STATUS=$((MODULE_STATUS+1))
+
   fi
 done
-if [ $MODULE_STATUS -gt 0 ]; then
-  printf "${RED}"
-  printf '\n\033[1mModules failing linting.\033[0m\n'
-  printf "${STOP}"
+
+if [ ${MODULE_STATUS} -gt 0 ]; then
+  printf '\n%b\033[1mModules failing linting.\033[0m%b\n' "${RED}" "${STOP}"
   printf '%b\n' "\033[1m--------\033[0m"
+
 fi
 
-for e in $(ls $PROJECT_WORK_DIR/environments/); do
-  printf 'Linting environment: %b\n' "\033[1m"$e"\033[0m"
-  cd $PROJECT_WORK_DIR/environments/$e
+for e in "$PROJECT_WORK_DIR"/environments/*; do
+  printf 'Linting environment:\t%b\n' "\033[1m$e\033[0m"
+  cd "$e" || { printf 'Directory not found: %s' "$e"; exit 1; }
 
   printf '\ntf init:\t'
   terraform init > /dev/null
-  task_success 
+  task_success $?
 
   printf 'tf lint:\t'
-  tflint --deep --module $PROJECT_WORK_DIR/environments/${e} > /dev/null
-  task_success
+  tflint --deep --module "${e}" > /dev/null
+  task_success $?
 
   printf 'tf validate:\t'
   terraform validate > /dev/null
-  task_success
+  task_success $?
 
   printf '%b' "\033[1m--------\033[0m"
   printf '\n'
+
 done
 
 if [ $ENVIRONMENT_STATUS -gt 0 ]; then
-  printf "${RED}"
-  printf 'Environment failling linting.\n\n'
-  printf "${STOP}"
+  printf '%b\033[1mEnvironment failling linting.\033[0m%b\n\n' "${RED}" "${STOP}"
   printf '%b\n' "\033[1m--------\033[0m"
+
 fi
 
-if [[ $MODULE_STATUS -gt 0 || $ENVIRONMENT_STATUS -gt 0 ]]; then
-  printf "${RED}"
-  printf 'Error: linting failed, exiting...'
-  printf "${STOP}"
+if [ $MODULE_STATUS -gt 0 ] || [ $ENVIRONMENT_STATUS -gt 0 ]; then
+  printf '%b\033[1mError: linting failed, exiting...\033[0m%b' "${RED}" "${STOP}"
   exit 1
+
 fi
 
 #
 # terraform-docs
 #
 
-MODULES_DIR="$PROJECT_WORK_DIR/modules/"
+MODULES_DIR="$PROJECT_WORK_DIR/modules"
 
-printf "${WHITE}"
 figlet tf docs
-printf "${STOP}"
-
 printf '%b\n' "\033[1m--------\033[0m"
 
-for m in $(ls $MODULES_DIR); do
-  DOCS_DIR="$MODULES_DIR/${m}/docs/"
-  printf 'Documenting module: %b\n\n' "\033[1m"$m"\033[0m"
-  if [[ ! -f "$DOCS_DIR/tfdoc.md" ]]; then
-    printf "${RED}"
-    printf '\033[1mNo documentation exists...\033[0m\n\n'
-    printf "${GREEN}"
-    printf '\033[1mCreate & commit new documentation..?\033[0m '
-    printf "${STOP}"
+for m in $MODULES_DIR/*; do
+  printf 'Documenting module: %b\n\n' "\033[1m${m}\033[0m"
+  DOCS_DIR="${m}/docs"
+
+  if [ ! -f "$DOCS_DIR/tfdoc.md" ]; then
+    printf '%b\033[1mNo documentation exists...\033[0m%b\n\n' "${RED}" "${STOP}"
+    printf '%b\033[1mCreate & commit new documentation..?\033[0m%b ' "${GREEN}" "${STOP}"
+
     while true; do
-      read -r -p "[y/n] " response
+      read -p "[y/n] " response
       case "$response" in
           [yY])
-            mkdir -p $DOCS_DIR
-            terraform-docs markdown $MODULES_DIR/${m} > $DOCS_DIR/tfdoc.md
-            git add $DOCS_DIR/tfdoc.md
-            git commit -m 'Automated: updating documentation for '$m
+            mkdir -p "$DOCS_DIR"
+            terraform-docs markdown "${m}" > "$DOCS_DIR"/tfdoc.md
+            git add "$DOCS_DIR"/tfdoc.md
+            git commit -m 'Automated: updating documentation for ' "$m"
             printf '%b\n' "\033[1m--------\033[0m"
             break
             ;;
           [nN])
-            printf "${GREEN}"
-            printf '"No" selected, continuing script...\n'
-            printf "${STOP}"
+            printf '%b"No" selected, continuing script...%b\n' "${GREEN}" "${STOP}"
             printf '%b\n' "\033[1m--------\033[0m"
             break
             ;;
@@ -206,22 +180,22 @@ for m in $(ls $MODULES_DIR); do
       esac
     done
   else
-    if [[ $(terraform-docs markdown $MODULES_DIR/${m} | diff -U 1 $DOCS_DIR/tfdoc.md -) ]]; then
-      terraform-docs markdown $MODULES_DIR/${m} | diff -U 1 $DOCS_DIR/tfdoc.md -
+    if [ "$(terraform-docs markdown "${m}" | diff -U 1 "$DOCS_DIR"/tfdoc.md -)" ]; then
+      terraform-docs markdown "${m}" | diff -U 1 "$DOCS_DIR"/tfdoc.md -
       printf 'Commit these changes..? '
+
       while true; do
-        read -r -p "[y/n] " response
+        read -r "[y/n] " response
+
         case "$response" in
             [yY])
-              terraform-docs markdown $MODULES_DIR/${m} > $DOCS_DIR/tfdoc.md
-              git add $MODULES_DIR/${m}/tfdoc.md
+              terraform-docs markdown "${m}" > "$DOCS_DIR"/tfdoc.md
+              git add "${m}"/tfdoc.md
               printf '%b\n' "\033[1m--------\033[0m"
               break
               ;;
             [nN])
-              printf "${GREEN}"
-              printf '"No" selected, continuing script...\n'
-              printf "${STOP}"
+              printf '%b"No" selected, continuing script...%b\n' "${GREEN}" "${STOP}"
               printf '%b\n' "\033[1m--------\033[0m"
               break
               ;;
@@ -234,10 +208,9 @@ for m in $(ls $MODULES_DIR); do
       done
       git commit -m 'Automated: updating module documentation.'
     else
-      printf "${GREEN}"
-      printf 'No changes to commit...\n'
-      printf "${STOP}"
+      printf '%bNo changes to commit...%b\n' "${GREEN}" "${STOP}"
       printf '%b\n' "\033[1m--------\033[0m"
+
     fi
   fi
 done
