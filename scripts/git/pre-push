@@ -1,17 +1,17 @@
 #!/bin/sh
 
 exec 0< /dev/tty
+
 #
 # tf fmt
 #
-
 
 figlet tf fmt
 printf '%s\n' "--------"
 
 tf_fmt=$(terraform fmt -check -recursive)
 
-if [ ${#tf_fmt[@]} ]; then
+if [ -z "$tf_fmt" ]; then
   for i in $tf_fmt; do
     terraform fmt -check -diff $i
     printf '\n'
@@ -42,9 +42,10 @@ if [ ${#tf_fmt[@]} ]; then
       esac
     done
   fi
+else
+  printf 'No formatting issues detected...\n'
+  printf '%s\n' "--------"
 fi
-
-exit 1
 
 #
 # tflint
@@ -63,7 +64,7 @@ for m in $(ls $(pwd)/modules/); do
   tflint --deep --module $(pwd)/modules/${m}
   
   if [ $? -eq 0 ]; then
-    printf '\tNo issues found...\n\n'
+    printf '\tNo issues found...\n'
     printf '%s\n' "--------"
   else
     printf 'FAILED\n\n'
