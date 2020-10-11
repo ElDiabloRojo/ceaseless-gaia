@@ -1,0 +1,64 @@
+#!/bin/sh
+
+#
+# tf fmt
+#
+
+figlet tf fmt
+
+tf_fmt=$(terraform fmt -check -recursive)
+
+if [ ${#tf_fmt[@]} -gt 0 ]; then
+  printf '%s\n' "--------"
+  for i in $tf_fmt; do
+    terraform fmt -check -diff $i
+    printf '\n'
+  done
+  printf '%s\n' "----"
+  printf '%s\n' "$tf_fmt"
+  printf 'Commit these files..? '
+  while true; do
+    read -r -p "[y/n] " response
+    case "$response" in
+        [yY])
+          terraform fmt -recursive -write=true
+          for i in $tf_fmt; do
+            git add $i
+          done
+          git commit -m 'Automated: pre-push tf formatting...'
+          ;;
+        [nN])
+          printf '"No" selected, continuing script...'
+          break
+          ;;
+        *)
+          printf 'Please enter: '
+        ;;
+    esac
+  done
+fi
+
+#
+# tflint
+#
+
+figlet tflint
+
+if [ ! $(which tflint) ]; then
+  printf 'Error: tflint not found!\n'
+  exit 1
+fi
+
+for m in $(ls $(pwd)/modules/); do
+  printf 'Linting module: %s\n' "$m"
+  tflint --deep --module $(pwd)/modules/${m}
+  
+  if [ $? -eq 0 ]; then
+    printf '\tNo issues found...\n\n'
+  else
+    printf 'FAILED\n\n'
+  fi
+done
+
+
+
