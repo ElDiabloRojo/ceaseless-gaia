@@ -2,11 +2,20 @@
 
 exec 0< /dev/tty
 
+WHITE="\e[1;37m"
+GREEN="\e[1;32m"
+ORANGE="\e[0;33m"
+RED="\e[0;31m"
+STOP="\e[0m"
+
 #
 # tf fmt
 #
 
+printf "${WHITE}"
 figlet tf fmt
+printf "${STOP}"
+
 printf '%s\n' "--------"
 
 tf_fmt=$(terraform fmt -check -recursive)
@@ -18,7 +27,7 @@ if (( ${#tf_fmt[@]} > 0 )); then
   done
   if [ ! -z "$tf_fmt" ]; then
     printf '%s\n' "--------"
-    printf '%s\n' "$tf_fmt"
+    printf '%s\n\n' "$tf_fmt"
     printf 'Commit these files..? '
     while true; do
       read -r -p "[y/n] " response
@@ -32,7 +41,9 @@ if (( ${#tf_fmt[@]} > 0 )); then
             break
             ;;
           [nN])
+            printf "${GREEN}"
             printf '"No" selected, continuing script...\n'
+            printf "${STOP}"
             break
             ;;
           *)
@@ -43,7 +54,9 @@ if (( ${#tf_fmt[@]} > 0 )); then
     done
   fi
 else
+  printf "${GREEN}"
   printf 'No formatting issues detected...\n'
+  printf "${STOP}"
   printf '%s\n' "--------"
 fi
 
@@ -51,11 +64,16 @@ fi
 # tflint
 #
 
+printf "${WHITE}"
 figlet tf lint
+printf "${STOP}"
+
 printf '%s\n' "--------"
 
 if [ ! $(which tflint) ]; then
+  printf "${RED}"
   printf 'Error: tflint not found!\n'
+  printf "${STOP}"
   exit 1
 fi
 
@@ -64,7 +82,9 @@ for m in $(ls $(pwd)/modules/); do
   tflint --deep --module $(pwd)/modules/${m}
   
   if [ $? -eq 0 ]; then
+    printf "${GREEN}"
     printf '\tNo issues found...\n'
+    printf "${STOP}"
     printf '%s\n' "--------"
   else
     printf 'FAILED\n\n'
