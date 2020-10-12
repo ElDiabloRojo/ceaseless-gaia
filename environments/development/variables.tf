@@ -5,6 +5,18 @@ variable "aws_profile" {
   default     = "default"
 }
 
+
+variable "index_file_source" {
+  type    = string
+  default = "../../src/index.html"
+}
+
+variable "error_file_source" {
+  type    = string
+  default = "../../src/error.html"
+}
+
+
 variable "environment" {}
 variable "domain" {}
 

@@ -12,7 +12,7 @@ set -x
 
 WORK_DIR=$TRAVIS_BUILD_DIR/environments/$1
 
-cd $WORK_DIR
+cd "$WORK_DIR" || { echo "Error: terraform environment not found"; exit 1; }
 echo "Creating change plan"
-terraform init $tf_init_cli_options
-terraform validate $tf_validation_cli_options
+terraform init "$tf_init_cli_options"
+terraform validate "$tf_validation_cli_options"

@@ -6,12 +6,12 @@ variable "bucket_name" {
 
 variable "index_file_source" {
   type    = string
-  default = "./src/index.html"
+  default = "../src/index.html"
 }
 
 variable "error_file_source" {
   type    = string
-  default = "./src/error.html"
+  default = "../src/error.html"
 }
 
 # [TODO: consolidate zone related vars into one, they are the same.]

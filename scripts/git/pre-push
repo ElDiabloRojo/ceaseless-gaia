@@ -43,7 +43,9 @@ if [ -n "$tf_fmt" ]; then
     printf '%s\n\n' "$tf_fmt"
     printf '%bCommit these files..?%b ' "${GREEN}" "${STOP}"
     while true; do
-      read -r -p "[y/n] " response
+      printf '[y/n] '
+      read -r response
+
       case "$response" in
           [yY])
             terraform fmt -recursive -write=true
@@ -148,7 +150,7 @@ MODULES_DIR="$PROJECT_WORK_DIR/modules"
 figlet tf docs
 printf '%b\n' "\033[1m--------\033[0m"
 
-for m in $MODULES_DIR/*; do
+for m in "$MODULES_DIR"/*; do
   printf 'Documenting module: %b\n\n' "\033[1m${m}\033[0m"
   DOCS_DIR="${m}/docs"
 
@@ -157,7 +159,9 @@ for m in $MODULES_DIR/*; do
     printf '%b\033[1mCreate & commit new documentation..?\033[0m%b ' "${GREEN}" "${STOP}"
 
     while true; do
-      read -p "[y/n] " response
+      printf '[y/n] '
+      read -r response
+
       case "$response" in
           [yY])
             mkdir -p "$DOCS_DIR"
@@ -185,7 +189,8 @@ for m in $MODULES_DIR/*; do
       printf 'Commit these changes..? '
 
       while true; do
-        read -r "[y/n] " response
+        printf '[y/n] '
+        read -r response
 
         case "$response" in
             [yY])
