@@ -6,6 +6,8 @@ module "static-site" {
   route53_hosted_zone_id = local.route53_zone_id
   s3_force_destroy       = true
   certificate_arn        = module.ssl.certificate_arn
+  index_file_source = "../../src/index.html"
+  error_file_source = "../../src/error.html"
 }
 
 module "ssl" {
